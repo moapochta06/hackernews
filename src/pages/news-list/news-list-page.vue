@@ -1,5 +1,6 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import {onMounted, ref} from 'vue'
+
 const news = ref([])
 const selectedArticle = ref(null)
 const comments = ref([])
@@ -8,11 +9,10 @@ const comments = ref([])
 const fetchNews = async () => {
   const response = await fetch(`${import.meta.env.VITE_API_URL}/v0/topstories.json`)
   const storyIds = await response.json()
-  const stories = await Promise.all(storyIds.slice(0, 100).map(async (id) => {
+  return await Promise.all(storyIds.slice(0, 100).map(async (id) => {
     const storyResponse = await fetch(`${import.meta.env.VITE_API_URL}/v0/item/${id}.json`)
     return await storyResponse.json()
   }))
-  return stories
 }
 
 
@@ -38,8 +38,8 @@ onMounted(async () => {
   // Fetch news and sort by date
   news.value = sortByDate(await fetchNews())
 })
-setInterval(async () => {
-  news.value = sortByDate(await fetchNews())
+setInterval(() => {
+    fetchNews()
 }, 60000)
 
 

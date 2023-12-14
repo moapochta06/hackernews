@@ -23,19 +23,26 @@ const fetchArticle = async () => {
     return error;
   }
 };
+const isComments = ref(false);
 
 const fetchComments = async (articleId) => {
-  try {
-    const response = await axios.get(`${import.meta.env.VITE_API_URL}/v0/item/${articleId}.json`);
-    const commentPromises = response.data.kids.map(commentId => axios.get(`${import.meta.env.VITE_API_URL}/v0/item/${commentId}.json`));
-    const commentResponses = await Promise.all(commentPromises);
-    comments.value = commentResponses.map(response => response.data);
-    selectedArticleId.value = articleId;// Update selectedArticleId
-    commentCount.value = commentResponses.length;
+isComments.value = !isComments.value
+  if (isComments.value) {
+    try {
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/v0/item/${articleId}.json`);
+      const commentPromises = response.data.kids.map(commentId => axios.get(`${import.meta.env.VITE_API_URL}/v0/item/${commentId}.json`));
+      const commentResponses = await Promise.all(commentPromises);
+      comments.value = commentResponses.map(response => response.data);
+      selectedArticleId.value = articleId;// Update selectedArticleId
+      commentCount.value = commentResponses.length;
+    }
+    catch (error) {
+      return error;
+    }
+  } else {
+    comments.value = []
   }
-  catch (error) {
-  return error;
-  }
+
 };
 
 onMounted(() => {
